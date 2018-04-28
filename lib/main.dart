@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app/FlieDart.dart';
 import 'package:flutter_app/Person.dart';
 import 'package:flutter_app/Snow.dart';
 
@@ -28,6 +31,19 @@ class RandomWordsState extends State<RandomWords> {
   final _saved = new Set<WordPair>();
 
   final TextStyle _biggerFont = new TextStyle(fontSize: 18.0);
+  int counter;
+  final fileDart = new FileDart();
+
+  @override
+  void initState() {
+    super.initState();
+    Future<int> count = fileDart.readCounter();
+    count.then((int value) {
+      setState(() {
+        counter = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +90,8 @@ class RandomWordsState extends State<RandomWords> {
       ),
       onTap: () {
         setState(() {
+          counter++;
+          fileDart.incrementCounter(counter);
           if (alreadySaved) {
             _saved.remove(pair);
           } else {
@@ -96,6 +114,13 @@ class RandomWordsState extends State<RandomWords> {
       });
       final divided =
           ListTile.divideTiles(tiles: tiles, context: context).toList();
+      var readCounter = fileDart.readCounter();
+      readCounter.then((int value) {
+        toast('总共点击' + value.toString() + '次');
+      });
+
+      toast('收藏' + divided.length.toString() + '条单词');
+
       return new Scaffold(
         appBar: new AppBar(
           title: new Text('saved Suggestions'),
