@@ -1,7 +1,8 @@
 # flutter_app
 
-A new Flutter application.
+Flutter Demo .
 
+事情太多，时间太少
 ## Getting Started
 
 For help getting started with Flutter, view our online
