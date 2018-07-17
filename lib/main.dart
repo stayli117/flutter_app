@@ -6,22 +6,100 @@ import 'package:flutter/services.dart';
 import 'package:flutter_app/FlieDart.dart';
 import 'package:flutter_app/Person.dart';
 import 'package:flutter_app/Snow.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() => runApp(new MyApp());
+void main() =>
+    runApp(new MyApp()
+    );
 const platform = const MethodChannel("toast");
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Startup Name Generator',
+      onGenerateTitle: (context) { // 此处
+        return DemoLocalizations
+            .of(context)
+            .taskTitle;
+      },
       home: new RandomWords(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        DemoLocalizationsDelegate.delegate, //添加在此处
+      ],
+      supportedLocales: [
+        const Locale('zh', 'CH'),
+        const Locale('en', 'US'),
+      ],
       theme: new ThemeData(primaryColor: Colors.pink),
     );
   }
 }
 
+// 定义国际化资源
+class DemoLocalizations {
+  final Locale locale;
+
+  DemoLocalizations(this.locale);
+
+  static Map<String, Map<String, String>> _localizedValues = {
+    'en': {
+      'task title': 'Flutter Demo',
+      'titlebar title': 'Flutter Demo Home Page',
+      'inc': 'update Text'
+    },
+    'zh': {
+      'task title': 'Flutter 示例',
+      'titlebar title': 'Flutter 示例主页面',
+      'inc': '增加'
+    }
+  };
+
+  get taskTitle {
+    return _localizedValues[locale.languageCode]['task title'];
+  }
+
+  get titleBarTitle {
+    return _localizedValues[locale.languageCode]['titlebar title'];
+  }
+
+  get inc {
+    return _localizedValues[locale.languageCode]['inc'];
+  }
+
+  //此处
+  static DemoLocalizations of(BuildContext context) {
+    return Localizations.of(context, DemoLocalizations);
+  }
+}
+// 定义资源控制器
+class DemoLocalizationsDelegate
+    extends LocalizationsDelegate<DemoLocalizations> {
+
+  const DemoLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) {
+    return ['en', 'zh'].contains(locale.languageCode);
+  }
+
+  @override
+  Future<DemoLocalizations> load(Locale locale) {
+    return new SynchronousFuture<DemoLocalizations>(
+        new DemoLocalizations(locale));
+  }
+
+  @override
+  bool shouldReload(LocalizationsDelegate<DemoLocalizations> old) {
+    return false;
+  }
+
+  static DemoLocalizationsDelegate delegate = const DemoLocalizationsDelegate();
+}
+
 class RandomWords extends StatefulWidget {
+
   @override
   createState() => new RandomWordsState();
 }
@@ -49,7 +127,9 @@ class RandomWordsState extends State<RandomWords> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Startup Name Generator'),
+        title: new Text(DemoLocalizations
+            .of(context)
+            .titleBarTitle),
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.list), onPressed: _pushSaved)
         ],
@@ -57,7 +137,9 @@ class RandomWordsState extends State<RandomWords> {
       body: _buildSuggestions(),
       floatingActionButton: new FloatingActionButton(
         onPressed: _show,
-        tooltip: 'Update Text',
+        tooltip: DemoLocalizations
+            .of(context)
+            .inc,
         child: new Icon(Icons.add),
       ),
     );
@@ -113,7 +195,7 @@ class RandomWordsState extends State<RandomWords> {
         );
       });
       final divided =
-          ListTile.divideTiles(tiles: tiles, context: context).toList();
+      ListTile.divideTiles(tiles: tiles, context: context).toList();
       var readCounter = fileDart.readCounter();
       readCounter.then((int value) {
         toast('总共点击' + value.toString() + '次');
